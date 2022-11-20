@@ -1,7 +1,7 @@
 package com.pies.kvstore;
 
-import abci.ABCIApplicationGrpc;
-import abci.Types;
+import tendermint.abci.ABCIApplicationGrpc;
+import tendermint.abci.Types;
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import jetbrains.exodus.ArrayByteIterable;
@@ -34,6 +34,13 @@ public class KVStoreApp extends ABCIApplicationGrpc.ABCIApplicationImplBase {
     @Override
     public void info(Types.RequestInfo req, StreamObserver<Types.ResponseInfo> responseObserver) {
         var resp = Types.ResponseInfo.newBuilder().build();
+        responseObserver.onNext(resp);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void flush(Types.RequestFlush req, StreamObserver<Types.ResponseFlush> responseObserver) {
+        var resp = Types.ResponseFlush.newBuilder().build();
         responseObserver.onNext(resp);
         responseObserver.onCompleted();
     }
@@ -90,6 +97,21 @@ public class KVStoreApp extends ABCIApplicationGrpc.ABCIApplicationImplBase {
         responseObserver.onCompleted();
     }
 
+    @Override
+    public void prepareProposal(Types.RequestPrepareProposal req,
+                                StreamObserver<Types.ResponsePrepareProposal> responseObserver) {
+        var resp = Types.ResponsePrepareProposal.newBuilder().build();
+        responseObserver.onNext(resp);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void processProposal(Types.RequestProcessProposal req,
+                                StreamObserver<Types.ResponseProcessProposal> responseObserver) {
+        var resp = Types.ResponseProcessProposal.newBuilder().setStatus(Types.ResponseProcessProposal.ProposalStatus.ACCEPT).build();
+        responseObserver.onNext(resp);
+        responseObserver.onCompleted();
+    }
     @Override
     public void commit(Types.RequestCommit req, StreamObserver<Types.ResponseCommit> responseObserver) {
         txn.commit();
