@@ -100,7 +100,7 @@ public class KVStoreApp extends ABCIApplicationGrpc.ABCIApplicationImplBase {
     @Override
     public void prepareProposal(Types.RequestPrepareProposal req,
                                 StreamObserver<Types.ResponsePrepareProposal> responseObserver) {
-        var resp = Types.ResponsePrepareProposal.newBuilder().build();
+        var resp = Types.ResponsePrepareProposal.newBuilder().addAllTxs(req.getTxsList()).build();
         responseObserver.onNext(resp);
         responseObserver.onCompleted();
     }
