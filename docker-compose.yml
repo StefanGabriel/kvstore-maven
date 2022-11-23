@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  kvstore-maven:
+    container_name: kvstore-maven
+    image: "docker-registry.stefan-gabriel.com/kvstore-maven:latest"
+    ports:
+      - "26658:26658"
+    networks:
+      localnet:
+        ipv4_address: 192.167.10.2
+
+networks:
+  localnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.167.10.0/16
