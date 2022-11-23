@@ -10,6 +10,34 @@ services:
       localnet:
         ipv4_address: 193.167.10.2
 
+  node0:
+    container_name: node0
+    image: "docker-registry.stefan-gabriel.com/tendermint/localnode:latest"
+    ports:
+      - "26656-26657:26656-26657"
+    environment:
+      - ID=0
+      - LOG=${LOG:-tendermint.log}
+    volumes:
+      - ./build:/tendermint:Z
+    networks:
+      localnet:
+        ipv4_address: 193.167.10.3
+
+  node1:
+    container_name: node1
+    image: "docker-registry.stefan-gabriel.com/tendermint/localnode:latest"
+    ports:
+      - "26659-26660:26656-26657"
+    environment:
+      - ID=1
+      - LOG=${LOG:-tendermint.log}
+    volumes:
+      - ./build:/tendermint:Z
+    networks:
+      localnet:
+        ipv4_address: 193.167.10.4
+
 networks:
   localnet:
     driver: bridge
