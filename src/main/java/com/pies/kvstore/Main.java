@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-        try (Environment env = Environments.newInstance("tmp/storage")) {
+        try (Environment env = Environments.newInstance("/tendermint-data")) {
             var app = new KVStoreApp(env);
             var server = new GrpcServer(app, 26658);
             server.start();
