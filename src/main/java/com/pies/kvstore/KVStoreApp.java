@@ -12,13 +12,17 @@ import jetbrains.exodus.env.StoreConfig;
 import jetbrains.exodus.env.Transaction;
 
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class KVStoreApp extends ABCIApplicationGrpc.ABCIApplicationImplBase {
     private Environment env;
     private Transaction txn = null;
     private Store store = null;
+    private static final Set<String> validatorsKeys = new HashSet<>();
 
     KVStoreApp(Environment env) {
         this.env = env;
@@ -59,6 +63,15 @@ public class KVStoreApp extends ABCIApplicationGrpc.ABCIApplicationImplBase {
 
     @Override
     public void initChain(Types.RequestInitChain req, StreamObserver<Types.ResponseInitChain> responseObserver) {
+        final List<Types.ValidatorUpdate> validatorsList = req.getValidatorsList();
+
+        validatorsList.forEach((validator) -> {
+            String validatorPubKey = Base64.getEncoder().encodeToString(validator.getPubKey().toByteArray());
+            System.out.println("Got a validator with pubKey: " + validatorPubKey);
+            validatorsKeys.add(validatorPubKey);
+        });
+        System.out.println("After initChain the validator pubKey list is:" +  Arrays.toString(validatorsKeys.toArray()));
+
         var resp = Types.ResponseInitChain.newBuilder().build();
         responseObserver.onNext(resp);
         responseObserver.onCompleted();
@@ -124,6 +137,9 @@ public class KVStoreApp extends ABCIApplicationGrpc.ABCIApplicationImplBase {
 
     @Override
     public void query(Types.RequestQuery req, StreamObserver<Types.ResponseQuery> responseObserver) {
+        System.out.println("We should validate a query using one of pubKeys:" +
+                Arrays.toString(validatorsKeys.toArray()));
+
         var k = req.getData().toByteArray();
         var v = getPersistedValue(k);
         var builder = Types.ResponseQuery.newBuilder();
@@ -139,6 +155,9 @@ public class KVStoreApp extends ABCIApplicationGrpc.ABCIApplicationImplBase {
     }
 
     private int validate(ByteString tx) {
+        System.out.println("We should validate a tx using one of pubKeys:" +
+                Arrays.toString(validatorsKeys.toArray()));
+
         List<byte[]> parts = split(tx, '=');
         if (parts.size() != 2) {
             return 1;
